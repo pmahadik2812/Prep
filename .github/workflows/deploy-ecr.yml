@@ -1,0 +1,34 @@
+name: Deploy API to ECR
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: prep-api
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+   test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dependencies
+        run: dotnet restore Prep.sln
+      - name: Build solution
+        run: dotnet build Prep.sln --configuration Release --no-restore
+      - name: Run tests
+        run: dotnet test Prep.sln --configuration Release --no-build --verbosity normal
+
